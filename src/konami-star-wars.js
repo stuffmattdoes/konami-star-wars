@@ -24,7 +24,6 @@ class KonamiStarWars extends Component {
         }
 
         KonamiCanvas();
-        // Explosions();
 
         this.setState({
             enabled: true
