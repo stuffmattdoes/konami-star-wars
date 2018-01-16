@@ -7,7 +7,7 @@ let laserProps = {
     flashSize: 150,
     length: 150,
     spread: 20,
-    velocity: 40,
+    velocity: 45,
     width: 10
 }
 let laserAudioSamples = [
@@ -23,10 +23,10 @@ let laserAudioSamples = [
 let laserAudioWeightTotal = laserAudioSamples.reduce((acc, sample) => acc += sample.weight, 0);
 
 function Laser(context) {
+    console.log(this);
     ctx = context;
     let wX = window.innerWidth;
     let wY = window.innerHeight;
-
     this.pos = {
         x: 0,
         y: 0,

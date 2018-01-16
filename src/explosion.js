@@ -1,94 +1,103 @@
-let ctx ;
-let minSize = 10;
-let maxSize = 35;
-let emission = 40;
-let colors = [
-    '#FF637D',
-    '#FF6666',
-    '#53D68E',
-    '#807EE5',
-    '#23CAEF',
-];
+let ctx;
+let colors = ['#6A0000', '#900000', '#902B2B', '#A63232', '#A62626', '#FD5039', '#C12F2A', '#FF6540', '#f93801'];
+//let colors = ['#66C2FF', '#48819C', '#205487', '#1DA7D1', '#1FC3FF'];
+let spring = 1 / 10;
+let friction = .85;
 
-let pixelDensity = window.devicePixelRatio;
+function Particle(coords) {
+    this.decay = .95; //randomIntFromInterval(80, 95)/100;//
+    this.r = randomIntFromInterval(10, 70);
+    this.R = 100 - this.r;
+    this.angle = Math.random() * 2 * Math.PI;
+    this.center = coords; //{x:cx,y:cy}
+    this.pos = {};
+    this.pos.x = this.center.x + this.r * Math.cos(this.angle);
+    this.pos.y = this.center.y + this.r * Math.sin(this.angle);
+    this.dest = {};
+    this.dest.x = this.center.x + this.R * Math.cos(this.angle);
+    this.dest.y = this.center.y + this.R * Math.sin(this.angle);
+    this.color = colors[~~(Math.random() * colors.length)];
+    this.vel = {
+        x: 0,
+        y: 0
+    };
+    this.acc = {
+        x: 0,
+        y: 0
+    };
 
-let mouseDown = false;
-let mouseMoved = false;
-let mousePosition;
-let particles = [];
-let raf;
+    this.update = function() {
+        let dx = (this.dest.x - this.pos.x);
+        let dy = (this.dest.y - this.pos.y);
 
-function Particle(context) {
-    this.pos = {
-        dx: 0,
-        dy: 0
-    }
-    this.size = Math.floor(Math.random() * (maxSize - minSize) + minSize);
-    this.size *= pixelDensity;
-    this.velocity = Math.random() * (7 - 5) + 5;
-    this.velocity *= pixelDensity;
-    this.angle = (Math.random() * 360);
-    this.fill = colors[Math.floor(Math.random() * (colors.length))];
-    this.shape = Math.floor(Math.random() * 2) === 0 ? 'circle' : 'square';
-    this.alive = true;
-    this.alpha = 1;
-    this.hSize = this.size / 2;
+        this.acc.x = dx * spring;
+        this.acc.y = dy * spring;
+        this.vel.x += this.acc.x;
+        this.vel.y += this.acc.y;
 
-    this.create = function(dx, dy) {
-        this.dx = dx;
-        this.dy = dy;
+        this.vel.x *= friction;
+        this.vel.y *= friction;
 
-        return this;
+        this.pos.x += this.vel.x;
+        this.pos.y += this.vel.y;
+
+        if (this.r > 0) this.r *= this.decay;
     }
 
     this.draw = function() {
-        context.save();
-        context.globalAlpha = this.alpha;
-        context.fillStyle = this.fill;
-        if (this.shape === 'circle') {
-            context.beginPath();
-            context.arc(Math.floor(this.x),Math.floor(this.y),this.size,0,2*Math.PI);
-        } else if (this.shape === 'square') {
-            context.rect(
-                (Math.floor(this.x) - (this.size / 2)),
-                (Math.floor(this.y) - (this.size / 2)),
-                (this.size),
-                (this.size)
-            );
-        }
-        context.lineWidth = 4 * pixelDensity;
-        context.fill();
-        context.restore();
-
-        return this;
+        ctx.fillStyle = this.color;
+        ctx.beginPath();
+        ctx.arc(this.pos.x, this.pos.y, this.r, 0, 2 * Math.PI);
+        ctx.fill();
     }
 
-    this.move = function() {
-        this.x += Math.floor((this.velocity * Math.cos(this.angle * Math.PI / 180)) * 2.5);
-        this.y += Math.floor((this.velocity * Math.sin(this.angle * Math.PI / 180)) * 2.5);
-        this.size -= 0.75 * pixelDensity;
+}
 
-        if (this.velocity <= 1) {
-            this.alpha -= 0.1;
+function Explosion(context) {
+    console.log(this);
+    ctx = context;
+    ctx.strokeStyle = '#fff';
+    this.life = 1;
+    this.pos = {
+        x: 0,
+        y: 0
+    };
+    this.particles = [];
 
-            if (this.alpha <= 0) {
-                this.alpha = 0;
-            }
-        }
+    this.create = function(x, y) {
+        this.particlesCount = 50;
+        this.pos.x = x;
+        this.pos.y = y;
 
-        this.angle += 1;
-        this.velocity -= 0.3 * pixelDensity;
-
-        if (this.size <= 0) {
-            this.size = 0;
+        for (let i = 0; i < this.particlesCount; i++) {
+            this.particles.push(new Particle(this.pos));
         }
 
         return this;
     }
 
     this.update = function() {
-        this.draw().move();
+        for (let i = 0; i < this.particles.length; i++) {
+            this.particles[i].update();
+            if (this.particles[i].r < .5) {
+                this.particles.splice(i, 1)
+            }
+        }
+
+        return this;
+    }
+
+    this.draw = function() {
+        for (let i = 0; i < this.particles.length; i++) {
+            this.particles[i].draw();
+        }
+
+        return this;
     }
 }
 
-export default Particle;
+function randomIntFromInterval(mn, mx) {
+    return Math.floor(Math.random() * (mx - mn + 1) + mn);
+}
+
+export default Explosion();

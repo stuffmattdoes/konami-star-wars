@@ -71,33 +71,29 @@ function konamiCanvas(props) {
             if (laser.life > 0) {
                 laser.update();
             } else {
-                new Explosion().create(lasers.active[i].pos.x, lasers.active[i].pos.y);
+                if (explosions.pool.length > 0) {
+                    explosions.active.push(explosions.pool.pop().create(lasers.active[i].pos.x, lasers.active[i].pos.y))
+                } else {
+                    explosions.active.push(new Explosion(ctx).create(lasers.active[i].pos.x, lasers.active[i].pos.y));
+                }
                 lasers.active.splice(i, 1);
                 lasers.pool.push(laser);
             }
         }
 
         // Explosions
-        var indexesToRemove = [];
-        for(var i = 0; i < explosions.active.length; i++) {
-            let explosion = explosions.active[i];
+        let explosion;
+        for (let i = 0; i < explosions.active.length; i++) {
+            explosion = explosions.active[i];
 
-            if (explosion.alive) {
+            if (explosion.life > 0) {
                 explosion.update();
             } else {
-                indexesToRemove.push(i);
+                explosions.active.splice(i, 1);
+                explosions.pool.push(explosion);
             }
-        }
 
-        // if (indexesToRemove.length) {
-        //     for(var i = 0; i < indexesToRemove.length; i++) {
-        //         particles.splice(indexesToRemove[i], 1);
-        //     }
-        // }
-        //
-        // if (mouseDown && mouseMoved) {
-        //     particles.push(new Particle(mousePosition.x * pixelDensity, mousePosition.y * pixelDensity));
-        // }
+        }
 
         requestAnimationFrame(mainUpdate);
     }
