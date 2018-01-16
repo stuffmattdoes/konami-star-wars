@@ -1,18 +1,36 @@
 import React, { Component } from 'react';
+import Konami from './konami';
 import KonamiStarWars from './konami-star-wars';
 import logo from './logo.svg';
 import './App.css';
 
 class App extends Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            konami: false
+        };
+    }
+    componentDidMount() {
+        document.addEventListener('keyup', Konami.code(this.onSuccess.bind(this)));
+    }
+
+    onSuccess() {
+        if (this.state.konami) {
+            return;
+        }
+
+        KonamiStarWars();
+
+        this.setState({
+            konami: true
+        })
+    }
+
     render() {
         return (
             <div className='app'>
-                <header className='app-header'>
-                    <img src={logo} className='app-logo' alt='logo' />
-                    <h1 className='app-title'>Welcome to React</h1>
-                </header>
-                <p className='app-intro'>To get started, edit <code>src/App.js</code> and save to reload.</p>
-                <KonamiStarWars />
+                <h1>↑ ↑ ↓ ↓ ← → ← → B A</h1>
             </div>
         );
     }
