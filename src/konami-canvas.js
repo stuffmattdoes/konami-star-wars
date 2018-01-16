@@ -3,8 +3,6 @@ function konamiCanvas(props) {
     // Variables
     let canvas;
     let ctx;
-    let halfH = 0;
-    let halfW = 0;
     let laserAudioSamples = [
         {
             sample: './audio/laser_1.mp3',
@@ -18,20 +16,17 @@ function konamiCanvas(props) {
     let laserAudioWeightTotal = laserAudioSamples.reduce((acc, sample) => acc += sample.weight, 0);
     let laserPool = [];
     let laserProps = {
-        blurColor: '#2CE731',
+        blurColor: '#17ED22',
         blurAmount: 25,
         color: '#F8FFEF',
         endCaps: 'round',
-        length: 125,
-        spread: 25,
-        width: 10
+        flashSize: 25,
+        length: 150,
+        spread: 20,
+        velocity: 35,
+        width: 8
     }
     let lasersActive = [];
-    let laserVelocity = 35;
-    let mouse = {
-        x: 0,
-        y: 0
-    };
     // let pixelDensity = window.devicePixelRatio;
     let pixelDensity = 1;
     let wX = window.innerWidth;
@@ -61,13 +56,24 @@ function konamiCanvas(props) {
         timeoutId = window.setTimeout(callback, ms);
     }
 
-    function laser(e) {
+    function flash(x, y) {
+        ctx.save();
+        ctx.rect(0, 0, laserProps.flashSize, laserProps.flashSize);
+        ctx.fillStyle = 'black';
+        // glowGreen.ctx.fillStyle = imageTools.createGradient(ctx,"radial",flashSize/2,flashSize/2,0,flashSize/2,["#585F","#0600"]);
+        ctx.fill();
+
+        ctx.restore();
+        return this;
+    }
+
+    function laser(dx, dy) {
         this.fill = 'green';
         this.pos = {
             x: 0,
             y: 0,
-            startX: 0,
-            startY: 0
+            dx: dx,
+            dy: dy
         }
 
         this.init = function() {
@@ -91,15 +97,10 @@ function konamiCanvas(props) {
                 this.pos.x = 0;
                 this.pos.y = Math.floor(Math.random() * Math.floor(wY));
             }
-            this.pos.startX = this.pos.x;
-            this.pos.startY = this.pos.y;
 
-            this.angle = pointsToDegrees({ x: this.pos.x, y: this.pos.y }, { x: mouse.x, y: mouse.y });
-            this.dist = Math.sqrt(Math.pow(mouse.x - this.pos.x, 2) + Math.pow(mouse.y - this.pos.y, 2));
-            this.life = Math.ceil(this.dist / laserVelocity); // how long to keep alive
-            // this.slope = (mouse.y - this.pos.y) / (mouse.x - this.pos.x);
-            // this.nSlope = Math.atan2(mouse.y - this.pos.y, mouse.x - this.pos.x);
-            // this.nmSlope = Math.atan(this.slope);
+            this.angle = pointsToDegrees({ x: this.pos.x, y: this.pos.y }, { x: this.pos.dx, y: this.pos.dy });
+            this.dist = Math.sqrt(Math.pow(this.pos.dx - this.pos.x, 2) + Math.pow(this.pos.dy - this.pos.y, 2));
+            this.life = Math.ceil(this.dist / laserProps.velocity); // how long to keep alive
 
             this.draw();
             this.playAudio();
@@ -154,8 +155,8 @@ function konamiCanvas(props) {
 
         this.move = function() {
             this.life -= 1;
-            this.pos.x += laserVelocity * Math.cos(this.angle * Math.PI / 180);
-            this.pos.y += laserVelocity * Math.sin(this.angle * Math.PI / 180);
+            this.pos.x += laserProps.velocity * Math.cos(this.angle * Math.PI / 180);
+            this.pos.y += laserProps.velocity * Math.sin(this.angle * Math.PI / 180);
             return this;
         }
 
@@ -171,21 +172,17 @@ function konamiCanvas(props) {
         window.addEventListener('resize', e => debounce(e, resize, 500));
         canvas.width = window.innerWidth * pixelDensity;
         canvas.height = window.innerHeight * pixelDensity;
-        halfH = canvas.height / 2;
-        halfW = canvas.width / 2;
     }
 
     function shootLaser(e) {
-        mouse.x = e.clientX || e.touches[0].clientX;
-        mouse.y = e.clientY || e.touches[0].clientY;
+        let x = e.clientX || e.touches[0].clientX;
+        let y = e.clientY || e.touches[0].clientY;
 
         if (laserPool.length > 0) {
             lasersActive.push(laserPool.pop().init());
         } else {
-            lasersActive.push(new laser(e));
+            lasersActive.push(new laser(x, y));
         }
-
-        // let newLaser = laserPool.length > 0 ? laserPool.pop() : lasersActive.push(new laser(e));
     }
 
     function pointsToDegrees(p1, p2) {
