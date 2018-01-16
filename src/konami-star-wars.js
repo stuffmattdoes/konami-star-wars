@@ -1,4 +1,3 @@
-import Explosions from './explosions2';
 import Konami from './konami';
 import KonamiCanvas from './konami-canvas';
 import React, { Component } from 'react';
@@ -15,7 +14,6 @@ class KonamiStarWars extends Component {
 
     componentDidMount() {
         document.addEventListener('keyup', Konami.code(this.onSuccess.bind(this)));
-        this.onSuccess();
     }
 
     onSuccess() {

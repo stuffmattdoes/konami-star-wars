@@ -23,7 +23,6 @@ let laserAudioSamples = [
 let laserAudioWeightTotal = laserAudioSamples.reduce((acc, sample) => acc += sample.weight, 0);
 
 function Laser(context) {
-    console.log(this);
     ctx = context;
     let wX = window.innerWidth;
     let wY = window.innerHeight;
@@ -64,7 +63,7 @@ function Laser(context) {
         this.life = Math.ceil(this.dist / laserProps.velocity);
 
         this.draw();
-        // this.playAudio();
+        this.playAudio();
 
         return this;
     }
@@ -146,9 +145,9 @@ function Laser(context) {
     this.update = function() {
         this.draw().move();
 
-        if (this.life < 5 && this.life > 0) {
-            this.flash();
-        }
+        // if (this.life < 5 && this.life > 0) {
+        //     this.flash();
+        // }
 
         return this;
     }
@@ -158,8 +157,8 @@ function pointsToDegrees(p1, p2) {
     return Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
 }
 
-function pointsToRadians(p1, p2) {
-    return Math.atan2(p2.y - p1.y, p2.x - p1.x);
-}
+// function pointsToRadians(p1, p2) {
+//     return Math.atan2(p2.y - p1.y, p2.x - p1.x);
+// }
 
 export default Laser;

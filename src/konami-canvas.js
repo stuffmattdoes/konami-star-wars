@@ -58,7 +58,7 @@ function konamiCanvas(props) {
         }
     }
 
-    function mainUpdate() {
+    function mainUpdate(timer) {
         ctx.fillStyle = 'transparent';
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillRect(0, 0, canvas.width, canvas.height);

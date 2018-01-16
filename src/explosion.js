@@ -54,7 +54,6 @@ function Particle(coords) {
 }
 
 function Explosion(context) {
-    console.log(this);
     ctx = context;
     ctx.strokeStyle = '#fff';
     this.life = 1;
@@ -73,7 +72,27 @@ function Explosion(context) {
             this.particles.push(new Particle(this.pos));
         }
 
+        this.playAudio();
+
         return this;
+    }
+
+    this.draw = function() {
+        ctx.globalCompositeOperation = 'lighter';
+
+        for (let i = 0; i < this.particles.length; i++) {
+            this.particles[i].draw();
+        }
+
+        ctx.restore();
+
+        return this;
+    }
+
+    this.playAudio = function() {
+        let sample = new Audio('./audio/explosion_2.mp3');
+        sample.volume = 0.5;
+        sample.play();
     }
 
     this.update = function() {
@@ -84,13 +103,7 @@ function Explosion(context) {
             }
         }
 
-        return this;
-    }
-
-    this.draw = function() {
-        for (let i = 0; i < this.particles.length; i++) {
-            this.particles[i].draw();
-        }
+        this.draw();
 
         return this;
     }
@@ -100,4 +113,4 @@ function randomIntFromInterval(mn, mx) {
     return Math.floor(Math.random() * (mx - mn + 1) + mn);
 }
 
-export default Explosion();
+export default Explosion;
