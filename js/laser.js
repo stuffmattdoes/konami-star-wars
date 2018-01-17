@@ -88,15 +88,12 @@ function Laser() {
 
     this.render = function() {
         ctx.save();
-
         ctx.translate(this.pos.x, this.pos.y);
         ctx.rotate(this.angle * Math.PI / 180);
-
         this.renderLaser(blurColor, width, -1);       // left outer green laser
         this.renderLaser(color, width, -1);           // Left inner white laser
         this.renderLaser(blurColor, width, 1);        // right outer green laser
         this.renderLaser(color, width, 1);            // right inner white laser
-
         ctx.restore();
     }
 

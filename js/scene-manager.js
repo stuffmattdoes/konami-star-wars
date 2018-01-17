@@ -54,42 +54,31 @@ function sceneManager(props) {
     }
 
     function mainUpdate(ms) {
-        ctx.fillStyle = 'transparent';
         ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         // Lasers
-        let laser;
         for (let i = 0; i < lasers.alive.length; i++) {
-            laser = lasers.alive[i];
-
-            if (laser.alive) {
-                laser.update();
+            if (lasers.alive[i].alive) {
+                lasers.alive[i].update();
             } else {
                 if (explosions.pool.length > 0) {
-                    // console.log('Explosions pool');
                     explosions.alive.push(explosions.pool.pop().create(lasers.alive[i].pos.x, lasers.alive[i].pos.y))
                 } else {
-                    // console.log('Explosions create');
                     explosions.alive.push(new Explosion().create(lasers.alive[i].pos.x, lasers.alive[i].pos.y));
                 }
+                lasers.pool.push(lasers.alive[i]);
                 lasers.alive.splice(i, 1);
-                lasers.pool.push(laser);
             }
         }
 
         // Explosions
-        let explosion;
         for (let i = 0; i < explosions.alive.length; i++) {
-            explosion = explosions.alive[i];
-
-            if (explosion.alive) {
-                explosion.update();
+            if (explosions.alive[i].alive) {
+                explosions.alive[i].update();
             } else {
+                explosions.pool.push(explosions.alive[i]);
                 explosions.alive.splice(i, 1);
-                explosions.pool.push(explosion);
             }
-
         }
 
         requestAnimationFrame(mainUpdate);

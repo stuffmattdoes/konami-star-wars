@@ -7,8 +7,8 @@ function Particle() {
     let friction = 0.75;
 
     this.create = function(pos) {
-        // this.decay = .95; //randomIntFromInterval(80, 95)/100;//
-        this.decay = randomIntFromInterval(80, 95) / 100;
+        this.decay = .95; //randomIntFromInterval(80, 95)/100;//
+        // this.decay = randomIntFromInterval(80, 95) / 100;
         this.radius = randomIntFromInterval(10, 70);
         this.R = 100 - this.radius;
         this.angle = Math.random() * 2 * Math.PI;
@@ -32,7 +32,7 @@ function Particle() {
         return this;
     }
 
-    this.move = function() {
+    this.update = function() {
         dx = (this.dest.x - this.pos.x);
         dy = (this.dest.y - this.pos.y);
 
@@ -55,11 +55,6 @@ function Particle() {
         ctx.beginPath();
         ctx.arc(this.pos.x, this.pos.y, this.radius, 0, 2 * Math.PI);
         ctx.fill();
-    }
-
-    this.update = function() {
-        this.move();
-        this.render();
     }
 
 }
@@ -87,10 +82,8 @@ function Explosion() {
 
         for (let i = 0; i < this.particlesCount; i++) {
             if (particles.pool.length > 0) {
-                console.log('Particle pool');
                 particles.alive.push(particles.pool.pop().create(this.pos));
             } else {
-                console.log('Particle create');
                 particles.alive.push(new Particle().create(this.pos));
             }
         }
@@ -105,19 +98,21 @@ function Explosion() {
         sample.play();
     }
 
+    this.render = function() {
+        for (var i = 0; i < particles.alive.length; i++) {
+            particles.alive[i].render();
+        }
+    }
+
     this.update = function() {
-        ctx.save();
         ctx.globalCompositeOperation = 'lighter';
 
-        let particle;
-
         for (let i = 0; i < particles.alive.length; i++) {
-            particle = particles.alive[i];
-            particle.update();
+            particles.alive[i].update();
 
-            if (particle.radius < 0.5) {
+            if (particles.alive[i].radius < 0.5) {
+                particles.pool.push(particles.alive[i]);
                 particles.alive.splice(i, 1);
-                particles.pool.push(particle);
             }
         }
 
@@ -125,7 +120,7 @@ function Explosion() {
             this.alive = false;
         }
 
-        ctx.restore();
+        this.render();
     }
 }
 
