@@ -1,21 +1,26 @@
-import Explosion from './explosion';
-import Laser from './laser';
+let canvas;
+let ctx;
+let wX = window.innerWidth;
+let wY = window.innerHeight;
 
-function konamiCanvas(props) {
-    // Variables
-    let canvas;
-    let ctx;
+function sceneManager(props) {
     let explosions = {
-        active: [],
+        alive: [],
         pool: []
     }
     let lasers = {
-        active: [],
+        alive: [],
         pool: []
     }
-    let pixelDensity = window.devicePixelRatio;
+    // let pixelDensity = window.devicePixelRatio;
+    let pixelDensity = 1;
 
     function init() {
+        document.addEventListener('keyup', Konami.code(onKonamiCodeSuccess));
+        onKonamiCodeSuccess();
+    }
+
+    function onKonamiCodeSuccess() {
         createCanvas();
         resize();
         requestAnimationFrame(mainUpdate);
@@ -27,16 +32,6 @@ function konamiCanvas(props) {
         canvas.classList.add('konami-canvas');
         document.body.appendChild(canvas);
         window.addEventListener('mousedown', shootLaser);
-    }
-
-    function debounce(event, callback, ms) {
-        let timeoutId = null;
-
-        if (timeoutId) {
-            window.clearTimeout(timeoutId);
-        }
-
-        timeoutId = window.setTimeout(callback, ms);
     }
 
     function resize() {
@@ -52,44 +47,46 @@ function konamiCanvas(props) {
         let y = e.clientY;
 
         if (lasers.pool.length > 0) {
-            lasers.active.push(lasers.pool.pop().create(x, y));
+            lasers.alive.push(lasers.pool.pop().create(x, y));
         } else {
-            lasers.active.push(new Laser(ctx).create(x, y));
+            lasers.alive.push(new Laser().create(x, y));
         }
     }
 
-    function mainUpdate(timer) {
+    function mainUpdate(ms) {
         ctx.fillStyle = 'transparent';
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.fillRect(0, 0, canvas.width, canvas.height);
 
         // Lasers
         let laser;
-        for (let i = 0; i < lasers.active.length; i++) {
-            laser = lasers.active[i];
+        for (let i = 0; i < lasers.alive.length; i++) {
+            laser = lasers.alive[i];
 
-            if (laser.life > 0) {
+            if (laser.alive) {
                 laser.update();
             } else {
                 if (explosions.pool.length > 0) {
-                    explosions.active.push(explosions.pool.pop().create(lasers.active[i].pos.x, lasers.active[i].pos.y))
+                    // console.log('Explosions pool');
+                    explosions.alive.push(explosions.pool.pop().create(lasers.alive[i].pos.x, lasers.alive[i].pos.y))
                 } else {
-                    explosions.active.push(new Explosion(ctx).create(lasers.active[i].pos.x, lasers.active[i].pos.y));
+                    // console.log('Explosions create');
+                    explosions.alive.push(new Explosion().create(lasers.alive[i].pos.x, lasers.alive[i].pos.y));
                 }
-                lasers.active.splice(i, 1);
+                lasers.alive.splice(i, 1);
                 lasers.pool.push(laser);
             }
         }
 
         // Explosions
         let explosion;
-        for (let i = 0; i < explosions.active.length; i++) {
-            explosion = explosions.active[i];
+        for (let i = 0; i < explosions.alive.length; i++) {
+            explosion = explosions.alive[i];
 
-            if (explosion.life > 0) {
+            if (explosion.alive) {
                 explosion.update();
             } else {
-                explosions.active.splice(i, 1);
+                explosions.alive.splice(i, 1);
                 explosions.pool.push(explosion);
             }
 
@@ -97,8 +94,25 @@ function konamiCanvas(props) {
 
         requestAnimationFrame(mainUpdate);
     }
-
     init();
 }
 
-export default konamiCanvas;
+function debounce(event, callback, ms) {
+    let timeoutId = null;
+
+    if (timeoutId) {
+        window.clearTimeout(timeoutId);
+    }
+
+    timeoutId = window.setTimeout(callback, ms);
+}
+
+function pointsToDegrees(p1, p2) {
+    return Math.atan2(p2.y - p1.y, p2.x - p1.x) * 180 / Math.PI;
+}
+
+function pointsToRadians(p1, p2) {
+    return Math.atan2(p2.y - p1.y, p2.x - p1.x);
+}
+
+sceneManager();

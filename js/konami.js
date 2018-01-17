@@ -1,4 +1,4 @@
-const Konami = {};
+let Konami = {};
 
 (function(Konami, window) {
 	/**
@@ -48,5 +48,3 @@ const Konami = {};
 	};
 
 })(Konami, window);
-
-export default Konami;
