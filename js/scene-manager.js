@@ -17,12 +17,15 @@ function sceneManager(props) {
 
     function init() {
         document.addEventListener('keyup', Konami.code(onKonamiCodeSuccess));
-        onKonamiCodeSuccess();
+        window.addEventListener('resize', e => debounce(e, resize, 100));
     }
 
     function onKonamiCodeSuccess() {
         createCanvas();
         resize();
+
+        setTimeout(() => lasers.alive.push(new Laser().create(wX / 2,  wY / 2)), 10);
+
         requestAnimationFrame(mainUpdate);
     }
 
@@ -35,9 +38,10 @@ function sceneManager(props) {
     }
 
     function resize() {
-        window.addEventListener('resize', e => debounce(e, resize, 500));
-        canvas.width = window.innerWidth * pixelDensity;
-        canvas.height = window.innerHeight * pixelDensity;
+        wX = window.innerWidth * pixelDensity;
+        wY = window.innerHeight * pixelDensity;
+        canvas.width = wX;
+        canvas.height = wY;
     }
 
     function shootLaser(e) {
@@ -83,7 +87,9 @@ function sceneManager(props) {
 
         requestAnimationFrame(mainUpdate);
     }
+
     init();
+    // onKonamiCodeSuccess();
 }
 
 function debounce(event, callback, ms) {
