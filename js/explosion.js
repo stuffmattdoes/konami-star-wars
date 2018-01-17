@@ -7,8 +7,8 @@ function Particle() {
     let friction = 0.75;
 
     this.create = function(pos) {
-        this.decay = .95; //randomIntFromInterval(80, 95)/100;//
-        // this.decay = randomIntFromInterval(80, 95) / 100;
+        // this.decay = .95; //randomIntFromInterval(80, 95)/100;//
+        this.decay = randomIntFromInterval(80, 95) / 100;
         this.radius = randomIntFromInterval(10, 70);
         this.R = 100 - this.radius;
         this.angle = Math.random() * 2 * Math.PI;
